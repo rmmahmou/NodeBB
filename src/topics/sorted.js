@@ -10,6 +10,10 @@ const categories = require('../categories');
 const meta = require('../meta');
 const plugins = require('../plugins');
 
+function hasTag(tags, tag) {
+	return tags.find(topicTag => topicTag.value === tag) !== undefined;
+}
+
 module.exports = function (Topics) {
 	Topics.getSortedTopics = async function (params) {
 		const data = {
@@ -268,12 +272,11 @@ module.exports = function (Topics) {
 		const { tags } = params;
 		tids = topicData.filter(t => (
 			t &&
-			t.cid &&
-			!isCidIgnored[t.cid] &&
-			(!cids || cids.includes(String(t.cid))) &&
-			(!tags.length || tags.every(tag => t.tags.find(topicTag => topicTag.value === tag)))
+  t.cid &&
+  !isCidIgnored[t.cid] &&
+  (!cids || cids.includes(String(t.cid))) &&
+  (!tags.length || tags.every(tag => hasTag(t.tags, tag)))
 		)).map(t => t.tid);
-
 		const result = await plugins.hooks.fire('filter:topics.filterSortedTids', { tids: tids, params: params });
 		return result.tids;
 	}
